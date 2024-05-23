@@ -1,6 +1,7 @@
 ---
 title: "Midterm"
 author: "Dylan Freebairn-Smith"
+date: "2024-05-08"
 format: html
 editor: visual
 ---
@@ -15,162 +16,81 @@ library(janitor)
 library(flextable)
 ```
 
-
-Problem 1
+# **Problem 1**
 
 a.  
 Null Hypothesis ($H_0$): Phosphorus levels in the soil are equal in recently burned, historically burned, and unburned areas on the reserve.
 
 Alternative Hypothesis ($H_A$): The soil phosphorus levels in the recently burned, historically burned, and unburned areas on the reserve are not all equal.
 
-b.
+b.  
 A Single-factor ANOVA test would be a good option because there are more than 2 groups/ levels (recent, historic, unburned) and a single factor/treatment (soil phosphorus levels). 
- The three main assumptions for an ANOVA test are independent observations, equal variances for all of the group(recent, historic, unburned) variables, and a normally distributed response variable (soil Phosphorus level).
 
-c.
- Welch’s ANOVA would be a reasonable alternative to the Single-factor ANOVA if the groups did not fulfill the assumption of equal variances and/or if the highest variance was more than 4x the lowest variance. Welch’s ANOVA is very similar to a regular ANOVA, but it does not require equal variances.
- 
- d.
- Yes, there could be a difference between the burned and unburned treatments because the means are all different, and the confidence intervals do not overlap. 
- 
- e.
- We can assume that the figure is normally distributed because the points follow the quantile line.  From the results of the Shapiro-Wilkes test, we can be even more sure the data is normally distributed because all of the test statistics are close to 1 (a perfect match with normal distribution) and $p > \alpha$, so the data is not significantly different from normal distribution and we can continue to use the parametric test. 
+c.  
+The three main assumptions for an ANOVA test are independent observations, equal variances for all of the group(recent, historic, unburned) variables, and a normally distributed response variable (soil Phosphorus level).
 
-f.
-The variances are equal enough because the p-value of the Levene test is less than 0.05, and the highest variance is not more than 4x the lowest variance. 
+d.  
+Welch’s ANOVA would be a reasonable alternative to the Single-factor ANOVA if the groups did not fulfill the assumption of equal variances and/or if the highest variance was more than 4x the lowest variance. Welch’s ANOVA is very similar to a regular ANOVA, but it does not require equal variances.
 
-g.
-There is a large ($\eta^2 = 0.47$, CI [0.34,1.00]) difference between soil phosphorus levels between areas with different times since burn (Single-Factor ANOVA, F(2,102) = 4.1822, p-value = 0.018, $\alpha = 0.05$).  Unburned areas had the least amount of mean soil phosphorus levels ($\bar{x} \approx ~0.80 ppm$, CI [?,?]), and recent burn areas had the highest mean soil phosphorus levels ($\bar{x} \approx 1.14 ppm$, CI [?,?]).
+e.  
+Yes, there could be a difference between the burned and unburned treatments because the means are all different, and the confidence intervals do not overlap.
 
+f.  
+We can assume that the figure is normally distributed because the points follow the quantile line. From the results of the Shapiro-Wilkes test, we can be even more sure the data is normally distributed because all of the test statistics are close to 1 (a perfect match with normal distribution) and $p > \alpha$, so the data is not significantly different from normal distribution and we can continue to use the parametric test.
 
-Problem 2
+g.  
+The variances are equal enough because the p-value of the Levene test is less than 0.05, and the highest variance is not more than 4x the lowest variance.
 
-a. They did the Crab Feeding Trials to test whether crabs consume below-ground roots when presented algae at the same time. They ran Welch’s two-sample t-test to accounts for the different variance structures between the three trials.
+h.  
+There is a large ($\eta^2 = 0.47$, CI \[0.34,1.00\]) difference between soil phosphorus levels between areas with different times since burn (Single-Factor ANOVA, F(2,102) = 4.1822, p-value = 0.018, $\alpha = 0.05$). There is a significant difference ($\alpha = 0.05$) between all of the groups. The largest difference in phosphorus levels between types of sites was unburned and recently burned sites (Tukey HSD = -0.357, CI\[-0.443, -0.272\], P = 0.000) and the smallest difference was between recent burn and historic burn sites (Tukey HSD = 0.162, CI\[0.0769, 0.248\], P < 0.000).
 
-b. They had one trial with just pickleweed roots, one with just algae, and one with pickleweed and algae but half the amount of each in the previous two trials. Each trial control (no-crabs) and a treatment (crabs) and ran for 72 hours.
+# Problem 2
 
-c. The differecne in mean dry weights was that if there was a higher mean dry weight that meant that the crabs ate less of the algae or root in that trial.  In every trial, the control had a higher mean dry weight than the treatment and this is because in the control there were no crabs introduced to consume the algae or roots, while there were crabs introduced in the treatment.
+a.  They did the Crab Feeding Trials to test whether crabs consume below-ground roots when presented algae at the same time. They ran Welch’s two-sample t-test to account for the different variance structures between the three trials.
 
-d.
+b.  They had one trial with just pickleweed roots, one with just algae, and one with pickleweed roots and algae but half the amount of each in the previous two trials. Each trial had a control (no-crabs) and a treatment (crabs) and ran for 72 hours.
+
+c.  The difference in mean dry weights was that if there was a higher mean dry weight that meant that the crabs ate less of the algae or root in that trial. In every trial, the control had a higher mean dry weight than the treatment and this is because in the control there were no crabs introduced to consume the algae or roots, while there were crabs introduced in the treatment.
+
+d.  
+
 ```{r T1 and T2}
 #| message: false
 
 CFT_Data <- read_csv("CFT_Data.csv") #read in the crab feeding trial data
-
-CFTdf_control <- CFT_Data %>% #Create a df for the control data for trial 1 and 2
-  select(Assigned_TTT_old, Assigned_TTT, Type, Planned_Starting_FW_g, Post_Trial_Dryweight_g) %>% #get desired columns
-  group_by(Assigned_TTT) %>% #group by trial #
-  filter(Type == "Control" & Assigned_TTT %in% c("trial (ii)", "trial (i)")) #filter the dataframe for only "Control" rows and then only by trial (ii) & (i) within the control rows
-
-CFTdf_treatment <- CFT_Data %>% #Create a df for the treatment data for trial 1 and 2
-  select(Assigned_TTT_old, Assigned_TTT, Type, Planned_Starting_FW_g, Post_Trial_Dryweight_g) %>% #get desired columns
-  group_by(Assigned_TTT) %>% #group by trial #
-  filter(Type == "Treatment" & Assigned_TTT %in% c("trial (ii)", "trial (i)")) #filter the dataframe for only "Treatment" rows and then only by trial (ii) & (i) within the Treatment rows
-
-```
-
-```  {r T3}
-CFTdf_cnALT3 <- CFT_Data %>% #Create a df for the algae control for trial (iii)
-  select(Assigned_TTT_old, Assigned_TTT, Type, Planned_Starting_FW_g, Post_Trial_Dryweight_g, Tissue) %>%  #get desired columns
-  group_by(Assigned_TTT) %>% #group by trial #
-  filter(Type == "Control" & Assigned_TTT %in% c("trial (iii)") & Tissue == "Algae") #filter the dataframe for only Control rows that are also trial (iii) and the Tissue is Algae
-
-CFTdf_cnPWT3 <- CFT_Data %>% #Create a df for the Pickleweed control for trial (iii)
-  select(Assigned_TTT_old, Assigned_TTT, Type, Planned_Starting_FW_g, Post_Trial_Dryweight_g, Tissue) %>% #get desired columns
-  group_by(Assigned_TTT) %>% #group by trial #
-  filter(Type == "Control" & Assigned_TTT %in% c("trial (iii)") & Tissue == "Pickleweed Roots") #filter the dataframe for only Control rows that are also trial (iii) and the Tissue is Pickleweed
-
-CFTdf_trALT3 <- CFT_Data %>% #Create a df for the algae treatment for trial (iii)
-  select(Assigned_TTT_old, Assigned_TTT, Type, Planned_Starting_FW_g, Post_Trial_Dryweight_g, Tissue) %>% #get desired columns
-  group_by(Assigned_TTT) %>% #group by trial #
-  filter(Type == "Treatment" & Assigned_TTT %in% c("trial (iii)") & Tissue == "Algae") #filter the dataframe for only Treatment rows that are also trial (iii) and the Tissue is Algae
-
-CFTdf_trPWT3 <- CFT_Data %>% #Create a df for the pickleweed treatment for trial (iii)
-  select(Assigned_TTT_old, Assigned_TTT, Type, Planned_Starting_FW_g, Post_Trial_Dryweight_g, Tissue) %>% #get desired columns
-  group_by(Assigned_TTT) %>% #group by trial #
-  filter(Type == "Treatment" & Assigned_TTT %in% c("trial (iii)") & Tissue == "Pickleweed Roots") #filter the dataframe for only Treatment rows that are also trial (iii) and the Tissue is Pickleweed
-
 ```
 
 e.
 ```{r}
-#Control Means and SD T1 & T2
-mean_sd_ctr <- summarise(CFTdf_control, meanCFT = # make a dataframe with the mean and sd of the control experiments from trials (i) and (ii)
-                   mean(Post_Trial_Dryweight_g), 
-                   sdCFT =
-                   sd(Post_Trial_Dryweight_g))
+#| message: false
 
-#Treatment Means and SD T1 & T2
-mean_sd_trmt <- summarise(CFTdf_treatment, meanCFT = # make a dataframe with the mean and sd of the Treatment experiments from trials (i) and (ii)
-                   mean(Post_Trial_Dryweight_g),
-                   sdCFT =
-                   sd(Post_Trial_Dryweight_g))
+CFT_Meancrying <- CFT_Data %>%  # Create a new df for the means
+  group_by(Assigned_TTT, Type, Tissue) %>% #group the data by trial # then by treatment or control, then by tissue type
+  select(Assigned_TTT, Type, Tissue, Post_Trial_Dryweight_g) %>% #select my relevant columns
+  summarise(meanCFT = mean(Post_Trial_Dryweight_g), .groups = "keep") %>% #find the mean of the Post trial dryweight by the predefined groups
+  pivot_wider(names_from = Type, 
+              values_from = meanCFT) %>% # Pivot the table to wider so that Type (control and treatment) each have their own columns
+  rename(Control_mean = Control, Treatment_mean = Treatment) # rename the columns
 
-#Control Mean and SD PW T3
-T3PW_mean_sd_ctr <- summarise(CFTdf_cnPWT3, meanCFT = # make a dataframe with the mean and sd of the pickleweed control experiments from trial (iii)
-                   mean(Post_Trial_Dryweight_g),
-                   sdCFT =
-                   sd(Post_Trial_Dryweight_g)) %>% 
-  mutate(Assigned_TTT = case_when(Assigned_TTT == 
-                                    "trial (iii)" ~ "trial (iii) pickleweed")) #change the name of the trial column so I can differentiate between the different experiments within trial (iii)
+CFT_SDcrying <- CFT_Data %>%  # Create a new df for the means
+  group_by(Assigned_TTT, Type, Tissue) %>% #group the data by trial # then by treatment or control, then by tissue type
+  select(Assigned_TTT, Type, Tissue, Post_Trial_Dryweight_g) %>% #select the relevant columns
+  summarise(sdCFT = sd(Post_Trial_Dryweight_g), .groups = "keep") %>%  #find the sd of the Post trial dryweight by the predefined groups
+  pivot_wider(names_from = Type, 
+              values_from = sdCFT) %>% # Pivot the table to wider so that Type (control and treatment) each have their own columns
+  rename(Control_sd = Control, Treatment_sd = Treatment)# rename the columns
 
-#Treatment Means and PW SD T3
-T3PW_mean_sd_trmt <- summarise(CFTdf_trPWT3, meanCFT = # make a dataframe with the mean and sd of the pickleweed Treatment experiments from trial (iii)
-                   mean(Post_Trial_Dryweight_g),
-                   sdCFT =
-                   sd(Post_Trial_Dryweight_g)) %>% 
-  mutate(Assigned_TTT = case_when(Assigned_TTT == 
-                                    "trial (iii)" ~ "trial (iii) pickleweed")) #change the name of the trial column so I can differentiate between the different experiments within trial (iii)
-
-#Control Mean and SD AL T3
-T3AL_mean_sd_ctr <- summarise(CFTdf_cnALT3, meanCFT = # make a dataframe with the mean and sd of the Algae control experiments from trial (iii)
-                   mean(Post_Trial_Dryweight_g),
-                   sdCFT =
-                   sd(Post_Trial_Dryweight_g)) %>% 
-  mutate(Assigned_TTT = case_when(Assigned_TTT == 
-                                    "trial (iii)" ~ "trial (iii) algae")) #change the name of the trial column so I can differentiate between the different experiments within trial (iii)
-
-#Treatment Means and SD AL T3
-T3AL_mean_sd_trmt <- summarise(CFTdf_trALT3, meanCFT = # make a dataframe with the mean and sd of the Algae Treatment experiments from trial (iii)
-                   mean(Post_Trial_Dryweight_g),
-                   sdCFT =
-                   sd(Post_Trial_Dryweight_g)) %>% 
-  mutate(Assigned_TTT = case_when(Assigned_TTT == 
-                                    "trial (iii)" ~ "trial (iii) algae")) #change the name of the trial column so I can differentiate between the different experiments within trial (iii)
-
+cryingmean_sd <- inner_join(CFT_SDcrying, CFT_Meancrying)
 
 ```
 
 ```{r}
 
-mean_sd_T1_2 <- merge(mean_sd_ctr, #merge the control and treatment mean and sd tables so I have one summary table
-                 mean_sd_trmt,
-                 by = "Assigned_TTT") %>% 
-  rename("Control Mean" = "meanCFT.x") %>% #rename the columns to be able to differentiate Control from treatment and mean from SD. This also make merging the table and matching the columns smoother.
-  rename("Control SD" = "sdCFT.x") %>% 
-  rename("Treatment Mean" = "meanCFT.y") %>% 
-  rename("Treatment SD" = "sdCFT.y")
-  
-mean_sd_ALT3 <- merge(T3AL_mean_sd_ctr, T3AL_mean_sd_trmt,#merge the control and treatment mean and sd tables
-                    by = "Assigned_TTT")  %>% 
-  rename("Control Mean" = "meanCFT.x") %>% #rename the columns to be able to differentiate Control from treatment and mean from SD. This also make merging the table and matching the columns smoother
-  rename("Control SD" = "sdCFT.x") %>% 
-  rename("Treatment Mean" = "meanCFT.y") %>% 
-  rename("Treatment SD" = "sdCFT.y")
-
-mean_sd_PWT3 <- merge(T3PW_mean_sd_ctr, T3PW_mean_sd_trmt,#merge the control and treatment mean and sd tables
-                    by = "Assigned_TTT") %>% 
-  rename("Control Mean" = "meanCFT.x") %>% #rename the columns to be able to differentiate Control from treatment and mean from SD. This also make merging the table and matching the columns smoother
-  rename("Control SD" = "sdCFT.x") %>% 
-  rename("Treatment Mean" = "meanCFT.y") %>% 
-  rename("Treatment SD" = "sdCFT.y")
-
-mean_sd <- bind_rows(mean_sd_T1_2, mean_sd_ALT3, mean_sd_PWT3) # bind the final data frame together to have all trial means and standard deviations
-
-print(mean_sd) #show the output df
+print(cryingmean_sd)
 ```
 
-f. 
+f.  
+
 ```{r}
 #### Trial 1
 
@@ -184,6 +104,7 @@ t_test_result_T1 <- t.test(Post_Trial_Dryweight_g ~ W.crab_W.O.crab, #assign the
                            var.equal = FALSE) #variances are unequal so use a welch's t-test
 print(t_test_result_T1) #show results
 ```
+
 ```{r}
 #### Trial 2
 
@@ -197,6 +118,7 @@ t_test_result_T2 <- t.test(Post_Trial_Dryweight_g ~ W.crab_W.O.crab, #assign the
                            var.equal = FALSE)#variances are unequal so use a welch's t-test
 print(t_test_result_T2) #show reults
 ```
+
 ```{r}
 #### Trial 3 Pickleweed
 
@@ -210,6 +132,7 @@ t_test_result_PWT3 <- t.test(Post_Trial_Dryweight_g ~ W.crab_W.O.crab, #assign t
                            var.equal = FALSE) #variances are unequal so use a welch's t-test
 print(t_test_result_PWT3) #show results
 ```
+
 ```{r}
 #### Trial 3 Algae
 
@@ -224,34 +147,34 @@ t_test_result_ALT3 <- t.test(Post_Trial_Dryweight_g ~ W.crab_W.O.crab, #assign t
 print(t_test_result_ALT3) #show results
 
 ```
-g.
+
+g.  
+
 ```{r}
 ggplot(data = CFT_Data, #use original dataframe
-              aes(x = Post_Trial_Dryweight_g, #x-axis is the dryweight of algae or pickleweed left
-              y = Type, # y is the type of experiment it was control or treatment (normally on the x but for a horizontal jitter this is required)
+              aes(x = Type, #x-axis is the dryweight of algae or pickleweed left
+              y = Post_Trial_Dryweight_g, # y is the type of experiment it was control or treatment (normally on the x but for a horizontal jitter this is required)
               color = Tissue)) + # classify the colors of th data according
-  geom_jitter(height = 0.1, # change the "width" of the horizontal jitter
+  geom_jitter(width = 0.1, # change the width of the horizontal jitter
+              height = 0, # make the height of the horizontal jitter 0
               alpha = 0.2) + # make the underlying data transparent
    stat_summary(geom = "pointrange", # make the 
                fun.data = mean_se, # display the mean and the standard error of the data in the pointrange
-               size = 0.6) + #make the mean point larger to differentiate from the underlying data
+               size = 0.5) + #make the mean point larger to differentiate from the underlying data
   facet_wrap( ~ Assigned_TTT + Tissue) + # create separate plots for each trial and each Tissue type 
   guides(color = "none") + # lake out the legend for the "color = Tissue" in the ggplot(aes())
   theme_classic() + # choose a theme without gridlines
   scale_color_manual(values=c("darkgreen", "cornflowerblue"))  + # change the colors of the Tissue
-  labs(x = "Post-Trial Mean Dryweight (g) # add an x-axis title
-       +/- Std. Error",
+  labs(x = "Post-Trial Mean Dryweight (g)
+       +/- Std. Error",# add an x-axis title
        y = "")  # take out the y-axis title because we only need the tick marks to explain it
 ```
 
-h.
-Fig. 1: Crab Feeding Trial Results:
-Showing mean amounts (Highlighted dots) of Dryweight Pickleweed (S. Pacifica) Root or Algae (Ulva Lactuca) left after being a jar for 72 hours Without Crab (Control) vs. With Crab (Treatment) ($\pm$ SEM (whiskers)). The transparent points underneath the Mean and SE are the underlying data points from observation within the trial. Green represents the Algae and blue represents Pickleweed roots. In trial (iii) both Pickleweed roots and algae were put in the jar. 
-Data citation: Beheshti, Kathryn (2022). Long-term study reveals top-down effect of crabs on a California salt marsh [Dataset]. Dryad. https://doi.org/10.7291/D1H971 
+h.  Fig. 1: Laboratory Crab Feeding Trial Results: Showing mean amounts (Highlighted dots) of Dryweight Pickleweed (S. Pacifica) Root or Algae (Ulva Lactuca) left after being a jar for 72 hours Without Crab (Control) vs. With Crab (Treatment) ($\pm$ SEM (whiskers)). The transparent points underneath the Mean and SE are the underlying data points from observation within the trial. Green represents the Algae and blue represents Pickleweed roots. In trial (iii) both Pickleweed roots and algae were put in the jar. Data citation: Beheshti, Kathryn (2022). Long-term study reveals top-down effect of crabs on a California salt marsh \[Dataset\]. Dryad. https://doi.org/10.7291/D1H971
 
-Problem 3
+# Problem 3
 
-a.
+a.  
 
 ```{r Problem 3a}
 #| message: false
@@ -270,7 +193,7 @@ arc_weather_clean <- arc_weather %>%  #create a clean dataframe to plot the desi
 head(arc_weather_clean, 10) #display the first ten rows of the cleaned table
 ```
 
-b.
+b.  
 
 ```{r Problem 3b}
 ggplot(arc_weather_clean, #use the cleaned data set
@@ -291,16 +214,15 @@ ggplot(arc_weather_clean, #use the cleaned data set
         axis.title = element_text(size = 9), # change the size of the axis label font
         title = element_text(size = 10)) + # change the title font size
   labs(title = "Toolik field station is above freezing between May and September", # title the plot
-       y = expression(Mean~Monthly~Air~Temperature~"("*degree*C~")"), # name the y axis but include the degree symbol in celcius
+       y = expression(Mean~Monthly~Air~Temperature~"("*degree*C~")"), # name the y axis but include the degree symbol in Celcius
        x = "Month") # name the x axis
 ```
 
+# Problem 4
 
-Problem 4
+a.  My response variable is the amount of time I spend in the water during a cold plunge and the predictor variable I am using is the weather on each day of the plunge. I will be looking at the mean amount of time I spend in the water when it is Fair, Cloudy, and Misty weather.
 
-a. My response variable is the amount of time I spend in the water during a cold plunge and the predictor variable I am using is the weather on each day of the plunge.  I will be looking at the mean amount of time I spend in the water when it is Fair, Cloudy, and Misty weather.
-
-b. & c.
+b.  & c.
 
 ```{r Problem 4b}
 #| message: false
@@ -308,7 +230,7 @@ b. & c.
 Cold_Plunge <- read_csv("Cold_Plunge.csv") # read in my csv sheet
 ```
 
-``` {r}
+```{r}
 Cold_Plunge_Clean <- Cold_Plunge %>% #assign the cleaned df to a new object
   select(`Water_Time (s)`, Weather) %>%  # select the columns I want to analyze
   clean_names() %>% #clean the names of the columns
@@ -317,7 +239,7 @@ Cold_Plunge_Clean <- Cold_Plunge %>% #assign the cleaned df to a new object
 Cold_Plunge_WTbW_Mean <- Cold_Plunge_Clean %>% # create a dataframe with the means by different weather type
   summarise(mean = mean(water_time_s)) %>% # find the mean of water time by the grouped weatehr types
   rename(Weather = weather) %>%  # rename the column
-  rename(`Mean Water Time` = mean)  # rename the column
+  rename(`Mean Water Time (s)` = mean)  # rename the column
 
 ggplot(Cold_Plunge_Clean, # plot the initial clean df
        aes(x = weather, # plot the weather type on the x axis
@@ -327,9 +249,9 @@ ggplot(Cold_Plunge_Clean, # plot the initial clean df
               alpha = 0.5) + # make the underlying data transparent
   stat_summary(geom = "errorbar", # create a error bar showing the confidence interval of the mean for water time by weather type
                fun.data = mean_cl_normal) + # find the the CI
-  geom_point(data = Cold_Plunge_WTbW_Mean, # use the mean sumary table i created
+  geom_point(data = Cold_Plunge_WTbW_Mean, # use the mean summary table i created
              aes(x = Weather, #nweather type on the x
-                 y = `Mean Water Time`, # water time on the y
+                 y = `Mean Water Time (s)`, # water time on the y
                  color = Weather), # color the points by weather type
              size = 3) + # change the size of the points
   geom_hline(yintercept = c(60, 120, 180, 240, 300), # add a line at y =  60, 120, 180, 240, 300
@@ -350,20 +272,20 @@ ggplot(Cold_Plunge_Clean, # plot the initial clean df
 "Fig 1: Time spent cold plunging during different weather conditions: 
 All data points are graphed with the mean time  spent in water for 
 each weather type as the larger data pointand an error bar showing 
-the 95% confidence interval for each weather type. The data points under-
+the 95% confidence interval for each weather type.  There is no error
+bar for Mist because there isn't enough data. The data points under-
 neath the mean and CI are the underlying data/ individual observations.
 The dashed lines represent 60 second intervals at 1, 2, 3, and 4 minute intervals.", # add a caption
        color = "Mean Water Time") # Change the legend title
 
 ```
 
-d.
+d.  
 
 ```{r Problem 4d}
-set_flextable_defaults()
+set_flextable_defaults() # set the default settings for the flextable
 
-ft <- flextable(Cold_Plunge_WTbW_Mean)
-ft <-set_caption(ft, caption = "Mean Seconds in Water by Weather Type") # caption not outputting in final render
-ft
+ft <- flextable(Cold_Plunge_WTbW_Mean) #assign the mean water time table to the flex table 
+ft <-set_caption(ft, caption = "Mean Seconds in Water by Weather Type")  # create a caption/title for the flextable
+ft # show the flextable
 ```
-
